@@ -290,5 +290,45 @@ def reset_password(data: dict):
 
     return "🔑 密码重置成功"
 
+# 给某个学生分配任务
+@app.post("/assign")
+def assign_task(data: dict):
+    username = data.get("username")
+    task_id = data.get("task_id")
+
+    # 读取 student_tasks.json
+    path = os.path.join(os.path.dirname(__file__), "student_tasks.json")
+    if not os.path.exists(path):
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump({}, f, ensure_ascii=False, indent=2)
+
+    with open(path, "r", encoding="utf-8") as f:
+        db = json.load(f)
+
+    # 添加
+    db.setdefault(username, [])
+    if task_id not in db[username]:
+        db[username].append(task_id)
+
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(db, f, ensure_ascii=False, indent=2)
+
+    return {"message": "Assigned successfully"}
+
+
+# 获取一个学生的任务
+@app.get("/assign/{username}")
+def get_user_tasks(username: str):
+    path = os.path.join(os.path.dirname(__file__), "student_tasks.json")
+
+    if not os.path.exists(path):
+        return []
+
+    with open(path, "r", encoding="utf-8") as f:
+        db = json.load(f)
+
+    return db.get(username, [])
+
+
 
 
