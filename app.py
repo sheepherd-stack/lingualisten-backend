@@ -231,3 +231,64 @@ def user_report(user_id: str, db: Session = Depends(get_db)):
     summary = {k: round(sum(v)/len(v), 2) for k, v in by_type.items()}
 
     return {"count": len(subs), "average_by_type": summary}
+
+# ============================
+# 🧑‍🏫 Student Accounts System
+# ============================
+
+STUDENT_DB_PATH = os.path.join(os.path.dirname(__file__), "students.json")
+
+# 如果没有文件，自动创建
+if not os.path.exists(STUDENT_DB_PATH):
+    with open(STUDENT_DB_PATH, "w", encoding="utf-8") as f:
+        json.dump({}, f, ensure_ascii=False, indent=2)
+
+
+# 1) 获取所有学生
+@app.get("/students")
+def get_students():
+    with open(STUDENT_DB_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+# 2) 添加学生
+@app.post("/students/add")
+def add_student(data: dict):
+    with open(STUDENT_DB_PATH, "r", encoding="utf-8") as f:
+        db = json.load(f)
+
+    username = data.get("username")
+    if username in db:
+        return "❌ 用户名已存在"
+
+    db[username] = {
+        "password": data.get("password"),
+        "email": data.get("email"),
+        "phone": data.get("phone")
+    }
+
+    with open(STUDENT_DB_PATH, "w", encoding="utf-8") as f:
+        json.dump(db, f, ensure_ascii=False, indent=2)
+
+    return "✅ 添加成功"
+
+
+# 3) 重置密码
+@app.post("/students/reset")
+def reset_password(data: dict):
+    with open(STUDENT_DB_PATH, "r", encoding="utf-8") as f:
+        db = json.load(f)
+
+    username = data.get("username")
+    if username not in db:
+        return "❌ 用户不存在"
+
+    db[username]["password"] = data.get("new_password")
+
+    with open(STUDENT_DB_PATH, "w", encoding="utf-8") as f:
+        json.dump(db, f, ensure_ascii=False, indent=2)
+
+    return "🔑 密码重置成功"
+
+
+
