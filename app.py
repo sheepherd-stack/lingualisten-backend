@@ -328,6 +328,16 @@ def get_user_tasks(username: str):
         db = json.load(f)
 
     return db.get(username, [])
+# ============================
+# 🏠 Home (root) endpoint
+# ============================
+@app.get("/")
+def home():
+    return {
+        "status": "Backend running",
+        "version": "1.0",
+        "message": "LinguaListen backend is working normally."
+    }
 
 
 
