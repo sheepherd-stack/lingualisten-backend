@@ -272,6 +272,21 @@ def add_student(data: dict):
 
     return "✅ 添加成功"
 
+# -----------------------------
+#  📄 GET ALL MATERIALS
+# -----------------------------
+@app.get("/materials")
+def get_all_materials(db: Session = Depends(get_db)):
+    items = db.query(Material).all()
+    return [
+        {
+            "id": m.id,
+            "title": m.title,
+            "audio_path": m.audio_path,
+            "transcript": m.transcript
+        }
+        for m in items
+    ]
 
 # 3) 重置密码
 @app.post("/students/reset")
