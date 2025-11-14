@@ -83,6 +83,22 @@ def material_split(mid: int, req: SplitRequest, db: Session = Depends(get_db)):
     db.commit()
     return {"count": len(sentences)}
 
+# -----------------------------
+#  📘 GET ALL TASKS
+# -----------------------------
+@app.get("/tasks")
+def get_all_tasks(db: Session = Depends(get_db)):
+    items = db.query(Task).all()
+    return [
+        {
+            "id": t.id,
+            "title": t.title,
+            "material_id": t.material_id,
+            "modes": t.modes.split(","),
+            "difficulty": t.difficulty
+        }
+        for t in items
+    ]
 
 # -----------------------------
 #  📘 CREATE TASK
